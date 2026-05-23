@@ -1,0 +1,11 @@
+{
+  "query": "mutation CreateCard($pipe_id: ID!, $fields_attributes: [FieldValueInput]!) { createCard(input: { pipe_id: $pipe_id fields_attributes: $fields_attributes }) { card { id title } } }",
+  "variables": {
+    "pipe_id": "seu_pipe_id",
+    "fields_attributes": [
+      { "field_id": "nome", "field_value": "João Silva" },
+      { "field_id": "email", "field_value": "joao@example.com" },
+      { "field_id": "patrimonio", "field_value": "250000" }
+    ]
+  }
+}
