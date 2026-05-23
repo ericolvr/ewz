@@ -113,18 +113,20 @@ curl -X POST http://localhost:8080/api/v1/webhooks/pipefy/card-updated \
 
 ## Visão de Produção (AWS)
 
-Em produção, a arquitetura escalaria da seguinte forma:
+Em produção, o sistema escalaria com a seguinte arquitetura:
 
-**Criação de cliente (`POST /clientes`)**
+**Aplicação**
 
-A API rodaria em **AWS Lambda** exposta via **API Gateway**. Ao criar um cliente, após persistir no **RDS (PostgreSQL)**, a Lambda publicaria uma mensagem no **SQS** em vez de chamar o Pipefy diretamente. Uma segunda Lambda consumiria a fila e faria a chamada GraphQL ao Pipefy com retry automático. Falhas que esgotassem as tentativas iriam para uma **Dead Letter Queue (DLQ)** para observabilidade e reprocessamento manual.
+Cada endpoint rodaria como uma função **Lambda** exposta via **API Gateway**. Essa abordagem elimina o gerenciamento de servidores, escala por requisição e cobra apenas pelo uso. O Gin precisaria de um adapter (`aws-lambda-go`) para rodar nesse ambiente. Como alternativa para times que preferem servidor dedicado, a API poderia rodar em EC2 dentro de um Auto Scaling Group (ASG) com um Application Load Balancer (ALB) na frente.
 
-**Webhook (`POST /webhooks/pipefy/card-updated`)**
+**Banco de dados**
 
-O endpoint de webhook também rodaria via API Gateway + Lambda. A idempotência seria garantida por uma tabela no **DynamoDB** (chave: `event_id`), que oferece latência baixa para esse tipo de lookup pontual. O cliente seria buscado no RDS e atualizado após o cálculo de prioridade.
+O **RDS PostgreSQL** em configuração Multi-AZ mantém uma réplica em standby em outra zona de disponibilidade. Em caso de falha da instância primária, o RDS promove a réplica automaticamente, sem perda de dados. A conexão é configurada via variável de ambiente, bastando apontar para o endpoint do RDS.
 
-**Benefícios:**
-- Escalabilidade automática via Lambda
-- Desacoplamento da integração com Pipefy via SQS
-- Garantia de entrega com retry e DLQ
-- Idempotência robusta via DynamoDB
+**Integração com Pipefy**
+
+Ao criar um cliente, a Lambda publicaria uma mensagem no **SQS** em vez de chamar o Pipefy diretamente — desacoplando a integração e garantindo durabilidade. Uma segunda Lambda consumiria a fila e executaria a mutation GraphQL com retry automático. Falhas que esgotassem as tentativas iriam para uma **Dead Letter Queue (DLQ)**, permitindo reprocessamento manual e observabilidade.
+
+**Webhook**
+
+A Lambda do webhook recebe o evento do Pipefy, verifica idempotência via **DynamoDB** (chave: `event_id`) — oferecendo latência baixa para esse tipo de lookup pontual — calcula a prioridade do cliente e persiste o resultado no RDS. A chamada de atualização ao Pipefy (`updateCardField`) é feita de forma síncrona; em produção, poderia ser extraída para uma fila SQS caso o tempo de resposta se tornasse crítico.
