@@ -9,7 +9,7 @@ MAIN_PATH=cmd/main.go
 DB_CONTAINER=ewz-postgres
 DB_VOLUME_NAME=ewz_postgres_data
 
-.PHONY: help install run db-start db-stop db-clean db-reset build
+.PHONY: help install run db-start db-stop db-clean db-reset build test
 
 help:
 	@echo ""
@@ -21,6 +21,7 @@ help:
 	@echo "  $(COLOR_GREEN)db-reset$(COLOR_RESET)   - Recreate database"
 	@echo "  $(COLOR_GREEN)run$(COLOR_RESET)        - Run development server"
 	@echo "  $(COLOR_GREEN)build$(COLOR_RESET)      - Build binary"
+	@echo "  $(COLOR_GREEN)test$(COLOR_RESET)       - Run tests"
 	@echo ""
 
 install:
@@ -42,9 +43,7 @@ db-stop:
 
 db-clean:
 	@echo "$(COLOR_YELLOW)Cleaning database data...$(COLOR_RESET)"
-	docker compose stop postgres
-	docker compose rm -f postgres
-	docker volume rm $(DB_VOLUME_NAME) 2>/dev/null || true
+	docker compose down -v
 	@echo "$(COLOR_GREEN)Database cleaned$(COLOR_RESET)"
 
 db-reset: db-clean db-start
@@ -67,3 +66,8 @@ build:
 	@echo "$(COLOR_YELLOW)Building application...$(COLOR_RESET)"
 	go build -o bin/backend $(MAIN_PATH)
 	@echo "$(COLOR_GREEN)Build completed$(COLOR_RESET)"
+
+test:
+	@echo "$(COLOR_YELLOW)Running tests...$(COLOR_RESET)"
+	go test ./... -v
+	@echo "$(COLOR_GREEN)Tests completed$(COLOR_RESET)"
