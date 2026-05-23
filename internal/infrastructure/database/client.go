@@ -25,9 +25,9 @@ func (c *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 			valor_patrimonio,
 			status,
 			prioridade
-		) VALUES ($1, $2, $3, $4, $5, $6)
+		) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id
 	`
-	_, err := c.db.ExecContext(
+	return c.db.QueryRowContext(
 		ctx,
 		query,
 		client.CustomerName,
@@ -36,8 +36,7 @@ func (c *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 		client.AssetValue,
 		client.Status,
 		client.Priority,
-	)
-	return err
+	).Scan(&client.ID)
 }
 
 func (c *ClientRepository) FindByEmail(ctx context.Context, email string) (*domain.Client, error) {
