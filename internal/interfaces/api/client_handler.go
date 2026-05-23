@@ -29,7 +29,7 @@ func (h *ClientHandler) Create(c *gin.Context) {
 		CustomerEmail: req.CustomerEmail,
 		RequestType:   req.RequestType,
 		AssetValue:    req.AssetValue,
-		Status:        "Aguardando Análise",
+		Status:        domain.StatusAguardandoAnalise,
 	}
 
 	if err := h.service.Create(c.Request.Context(), client); err != nil {
@@ -43,6 +43,6 @@ func (h *ClientHandler) Create(c *gin.Context) {
 		CustomerEmail: client.CustomerEmail,
 		RequestType:   client.RequestType,
 		AssetValue:    client.AssetValue,
-		Status:        client.Status,
+		Status:        string(client.Status),
 	})
 }
