@@ -12,7 +12,7 @@ API em Go para gerenciamento de clientes e integração com o Pipefy via GraphQL
 ---
 
 ## Execução local
-
+Todos os comandos estão no makfile e podem ser vistos com make help
 ```bash
 # 1. Instalar dependências
 make install
