@@ -39,6 +39,6 @@ func (s *ClientService) GetByEmail(ctx context.Context, email string) (*domain.C
 	return client, nil
 }
 
-func (s *ClientService) UpdateStatus(ctx context.Context, email, status, priority string) error {
+func (s *ClientService) UpdateStatus(ctx context.Context, email string, status domain.Status, priority domain.Priority) error {
 	return s.clientRepo.UpdateStatus(ctx, email, status, priority)
 }

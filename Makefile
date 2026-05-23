@@ -9,7 +9,7 @@ MAIN_PATH=cmd/main.go
 DB_CONTAINER=ewz-postgres
 DB_VOLUME_NAME=ewz_postgres_data
 
-.PHONY: help install run db-start db-stop db-clean db-migrate db-reset build
+.PHONY: help install run db-start db-stop db-clean db-reset build
 
 help:
 	@echo ""
@@ -18,7 +18,6 @@ help:
 	@echo "  $(COLOR_GREEN)db-start$(COLOR_RESET)   - Start Postgres container"
 	@echo "  $(COLOR_GREEN)db-stop$(COLOR_RESET)    - Stop Postgres container"
 	@echo "  $(COLOR_GREEN)db-clean$(COLOR_RESET)   - Remove container and volume"
-	@echo "  $(COLOR_GREEN)db-migrate$(COLOR_RESET) - Apply SQL schema"
 	@echo "  $(COLOR_GREEN)db-reset$(COLOR_RESET)   - Recreate database"
 	@echo "  $(COLOR_GREEN)run$(COLOR_RESET)        - Run development server"
 	@echo "  $(COLOR_GREEN)build$(COLOR_RESET)      - Build binary"
@@ -48,17 +47,7 @@ db-clean:
 	docker volume rm $(DB_VOLUME_NAME) 2>/dev/null || true
 	@echo "$(COLOR_GREEN)Database cleaned$(COLOR_RESET)"
 
-db-migrate:
-	@echo "$(COLOR_YELLOW)Applying schema...$(COLOR_RESET)"
-	@if [ ! -f .env ]; then cp .env-sample .env; fi
-	@until docker exec $(DB_CONTAINER) pg_isready -U $$(grep DB_USER .env | cut -d'=' -f2) -d $$(grep DB_NAME .env | cut -d'=' -f2) > /dev/null 2>&1; do \
-		echo "$(COLOR_YELLOW)Waiting for database...$(COLOR_RESET)"; \
-		sleep 2; \
-	done
-	docker exec -i $(DB_CONTAINER) psql -v ON_ERROR_STOP=1 -U $$(grep DB_USER .env | cut -d'=' -f2) -d $$(grep DB_NAME .env | cut -d'=' -f2) < scripts/init.sql
-	@echo "$(COLOR_GREEN)Schema applied$(COLOR_RESET)"
-
-db-reset: db-clean db-start db-migrate
+db-reset: db-clean db-start
 	@echo "$(COLOR_GREEN)Database reset completed$(COLOR_RESET)"
 
 run:

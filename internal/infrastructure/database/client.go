@@ -25,7 +25,7 @@ func (c *ClientRepository) Create(ctx context.Context, client *domain.Client) er
 			valor_patrimonio,
 			status,
 			prioridade
-		) VALUES (?, ?, ?, ?, ?, ?)
+		) VALUES ($1, $2, $3, $4, $5, $6)
 	`
 	_, err := c.db.ExecContext(
 		ctx,
@@ -51,10 +51,12 @@ func (c *ClientRepository) FindByEmail(ctx context.Context, email string) (*doma
 			status,
 			prioridade
 		FROM clients
-		WHERE cliente_email = ?
+		WHERE cliente_email = $1
 	`
 	row := c.db.QueryRowContext(ctx, query, email)
+
 	var client domain.Client
+	var priority sql.NullString
 	err := row.Scan(
 		&client.ID,
 		&client.CustomerName,
@@ -62,7 +64,7 @@ func (c *ClientRepository) FindByEmail(ctx context.Context, email string) (*doma
 		&client.RequestType,
 		&client.AssetValue,
 		&client.Status,
-		&client.Priority,
+		&priority,
 	)
 	if err != nil {
 		if errors.Is(err, sql.ErrNoRows) {
@@ -70,14 +72,18 @@ func (c *ClientRepository) FindByEmail(ctx context.Context, email string) (*doma
 		}
 		return nil, err
 	}
+	if priority.Valid {
+		p := domain.Priority(priority.String)
+		client.Priority = &p
+	}
 	return &client, nil
 }
 
-func (c *ClientRepository) UpdateStatus(ctx context.Context, email, status, priority string) error {
+func (c *ClientRepository) UpdateStatus(ctx context.Context, email string, status domain.Status, priority domain.Priority) error {
 	query := `
 		UPDATE clients
-		SET status = ?, prioridade = ?
-		WHERE cliente_email = ?
+		SET status = $1, prioridade = $2, updated_at = NOW()
+		WHERE cliente_email = $3
 	`
 	_, err := c.db.ExecContext(ctx, query, status, priority, email)
 	return err
