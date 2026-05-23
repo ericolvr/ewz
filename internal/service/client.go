@@ -3,16 +3,18 @@ package service
 import (
 	"context"
 	"errors"
+	"log"
 
 	"github.com/ericolvr/ewz/internal/domain"
 )
 
 type ClientService struct {
-	clientRepo domain.ClientRepository
+	clientRepo   domain.ClientRepository
+	pipefyClient domain.PipefyClient
 }
 
-func NewClientService(clientRepo domain.ClientRepository) *ClientService {
-	return &ClientService{clientRepo: clientRepo}
+func NewClientService(clientRepo domain.ClientRepository, pipefyClient domain.PipefyClient) *ClientService {
+	return &ClientService{clientRepo: clientRepo, pipefyClient: pipefyClient}
 }
 
 func (s *ClientService) Create(ctx context.Context, client *domain.Client) error {
@@ -28,7 +30,21 @@ func (s *ClientService) Create(ctx context.Context, client *domain.Client) error
 		return errors.New("e-mail já cadastrado")
 	}
 
-	return s.clientRepo.Create(ctx, client)
+	if err := s.clientRepo.Create(ctx, client); err != nil {
+		return err
+	}
+
+	// Goroutine para nao bloquear a resposta do cliente
+	// Em prod sugeriria usar uma fila SQS para garantir durabilidade,
+	// retry automático e observabilidade via DLQ.
+
+	go func() {
+		if err := s.pipefyClient.CreateCard(context.Background(), client); err != nil {
+			log.Printf("[pipefy] falha ao criar card para %s: %v", client.CustomerEmail, err)
+		}
+	}()
+
+	return nil
 }
 
 func (s *ClientService) GetByEmail(ctx context.Context, email string) (*domain.Client, error) {
