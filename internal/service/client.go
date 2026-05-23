@@ -3,7 +3,7 @@ package service
 import (
 	"context"
 	"errors"
-	"log"
+	"log/slog"
 
 	"github.com/ericolvr/ewz/internal/domain"
 )
@@ -19,28 +19,33 @@ func NewClientService(clientRepo domain.ClientRepository, pipefyClient domain.Pi
 
 func (s *ClientService) Create(ctx context.Context, client *domain.Client) error {
 	if err := client.Validate(); err != nil {
+		slog.WarnContext(ctx, "validação falhou", "email", client.CustomerEmail, "erro", err.Error())
 		return err
 	}
 
 	existingClient, err := s.clientRepo.FindByEmail(ctx, client.CustomerEmail)
 	if err != nil {
+		slog.ErrorContext(ctx, "erro ao buscar cliente", "email", client.CustomerEmail, "erro", err.Error())
 		return err
 	}
 	if existingClient != nil {
+		slog.WarnContext(ctx, "e-mail já cadastrado", "email", client.CustomerEmail)
 		return errors.New("e-mail já cadastrado")
 	}
 
 	if err := s.clientRepo.Create(ctx, client); err != nil {
+		slog.ErrorContext(ctx, "erro ao salvar cliente", "email", client.CustomerEmail, "erro", err.Error())
 		return err
 	}
 
-	// Goroutine para nao bloquear a resposta do cliente
+	slog.InfoContext(ctx, "cliente criado", "email", client.CustomerEmail, "status", client.Status)
+
+	// Goroutine para nao bloquear a resposta do cliente.
 	// Em prod sugeriria usar uma fila SQS para garantir durabilidade,
 	// retry automático e observabilidade via DLQ.
-
 	go func() {
 		if err := s.pipefyClient.CreateCard(context.Background(), client); err != nil {
-			log.Printf("[pipefy] falha ao criar card para %s: %v", client.CustomerEmail, err)
+			slog.Error("falha ao criar card no pipefy", "email", client.CustomerEmail, "erro", err.Error())
 		}
 	}()
 
