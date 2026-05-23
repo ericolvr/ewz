@@ -17,8 +17,7 @@ Todos os comandos estão no makfile e podem ser vistos com make help
 # 1. Instalar dependências
 make install
 
-# 2. Subir o banco de dados (cria as tabelas automaticamente)
-make db-start
+# 2. Subir o banco de dados (cria as tabelas automaticamente)make db-start
 
 # 3. Rodar o servidor
 make run
