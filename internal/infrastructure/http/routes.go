@@ -8,11 +8,11 @@ import (
 func SetupRoutes(
 	router *gin.Engine,
 	clientHandler *api.ClientHandler,
-	// webhookHandler *api.WebhookHandler,
+	webhookHandler *api.WebhookHandler,
 ) {
 	v1 := router.Group("/api/v1")
 	{
 		v1.POST("/clientes", clientHandler.Create)
-		// v1.POST("/webhooks/pipefy/card-updated", webhookHandler.Process)
+		v1.POST("/webhooks/pipefy/card-updated", webhookHandler.Process)
 	}
 }
