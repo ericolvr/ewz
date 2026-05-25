@@ -1,0 +1,208 @@
+{
+  "info": {
+    "_postman_id": "25467aac-df83-4721-8308-16a107cc26bb",
+    "name": "mundo-invest",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "_exporter_id": "2623026"
+  },
+  "item": [
+    {
+      "name": "clients",
+      "item": [
+        {
+          "name": "Create Client < 200K",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJvZmZpY2VfaWQiOjQsIm1vYmlsZSI6IjExOTg4MjU5OTk3IiwidHlwZSI6MiwiZXhwIjoxNzc4Njg0MDYyLCJpYXQiOjE3Nzg1OTc2NjJ9.jBMGJ_H1UMA78ivWZbdesJhaWoshqxEqUjv1Z_2BclU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cliente_nome\": \"John Doe\",\n    \"cliente_email\": \"john@doe.com\",\n    \"tipo_solicitacao\": \"Atualização cadastral\",\n    \"valor_patrimonio\": 399\n}\n\n\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/clients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "clients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Client < 200K",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/clients/john@doe.com",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "clients",
+                "john@doe.com"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Create Client >= 200K",
+          "request": {
+            "auth": {
+              "type": "bearer",
+              "bearer": [
+                {
+                  "key": "token",
+                  "value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ1c2VyX2lkIjo0LCJvZmZpY2VfaWQiOjQsIm1vYmlsZSI6IjExOTg4MjU5OTk3IiwidHlwZSI6MiwiZXhwIjoxNzc4Njg0MDYyLCJpYXQiOjE3Nzg1OTc2NjJ9.jBMGJ_H1UMA78ivWZbdesJhaWoshqxEqUjv1Z_2BclU",
+                  "type": "string"
+                }
+              ]
+            },
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"cliente_nome\": \"Érico Oliveira\",\n    \"cliente_email\": \"ericolvr@gmail.com\",\n    \"tipo_solicitacao\": \"Atualização cadastral\",\n    \"valor_patrimonio\": 765980\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/clients",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "clients"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Get Client > 200 K",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "http://localhost:8080/api/v1/clients/ericolvr@gmail.com",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "clients",
+                "ericolvr@gmail.com"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Webhook",
+      "item": [
+        {
+          "name": "Update Card < 200K",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"event_id\": \"evt_123\",\n    \"card_id\": \"card_456\",\n    \"cliente_email\": \"john@doe.com\",\n    \"timestamp\": \"2026-05-18T12:00:00Z\"\n}\n\n",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/webhooks/pipefy/card-updated",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "webhooks",
+                "pipefy",
+                "card-updated"
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "Update Card > 200K",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n    \"event_id\": \"evt_124\",\n    \"card_id\": \"card_457\",\n    \"cliente_email\": \"ericolvr@gmail.com\",\n    \"timestamp\": \"2026-05-18T12:00:00Z\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "http://localhost:8080/api/v1/webhooks/pipefy/card-updated",
+              "protocol": "http",
+              "host": [
+                "localhost"
+              ],
+              "port": "8080",
+              "path": [
+                "api",
+                "v1",
+                "webhooks",
+                "pipefy",
+                "card-updated"
+              ]
+            }
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
