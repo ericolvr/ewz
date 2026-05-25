@@ -3,6 +3,7 @@ package pipefy
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"log/slog"
 
 	"github.com/ericolvr/ewz/internal/domain"
@@ -38,7 +39,7 @@ func (c *Client) CreateCard(ctx context.Context, client *domain.Client) error {
 		"fields_attributes": []map[string]any{
 			{"field_id": "nome", "field_value": client.CustomerName},
 			{"field_id": "email", "field_value": client.CustomerEmail},
-			{"field_id": "patrimonio", "field_value": client.AssetValue},
+			{"field_id": "patrimonio", "field_value": fmt.Sprintf("%.2f", client.AssetValue)},
 		},
 	}
 
@@ -57,7 +58,7 @@ func (c *Client) CreateCard(ctx context.Context, client *domain.Client) error {
 }
 
 const updateCardFieldMutation = `
-	mutation UpdateCardField($card_id: ID!, $field_id: ID!, $new_value: UndefinedInput!) {
+	mutation UpdateCardField($card_id: ID!, $field_id: ID!, $new_value: String!) {
 		updateCardField(input: {
 			card_id: $card_id
 			field_id: $field_id
@@ -65,9 +66,7 @@ const updateCardFieldMutation = `
 		}) {
 			card {
 				id
-				current_phase {
-					name
-				}
+				title
 			}
 		}
 	}
@@ -79,25 +78,21 @@ func (c *Client) UpdateCard(ctx context.Context, cardID string, client *domain.C
 		priority = string(*client.Priority)
 	}
 
-	variables := map[string]any{
-		"card_id":  cardID,
-		"field_id": "status",
-		"new_value": map[string]any{
-			"status":     string(client.Status),
-			"prioridade": priority,
-		},
+	updates := []map[string]any{
+		{"card_id": cardID, "field_id": "status", "new_value": string(client.Status)},
+		{"card_id": cardID, "field_id": "prioridade", "new_value": priority},
 	}
 
-	payload := map[string]any{
-		"query":     updateCardFieldMutation,
-		"variables": variables,
+	for _, vars := range updates {
+		payload := map[string]any{
+			"query":     updateCardFieldMutation,
+			"variables": vars,
+		}
+		out, err := json.MarshalIndent(payload, "", "  ")
+		if err != nil {
+			return err
+		}
+		slog.Info("[pipefy] updateCardField payload", "payload", string(out))
 	}
-
-	out, err := json.MarshalIndent(payload, "", "  ")
-	if err != nil {
-		return err
-	}
-
-	slog.Info("[pipefy] updateCardField payload", "payload", string(out))
 	return nil
 }
