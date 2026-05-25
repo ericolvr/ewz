@@ -1,5 +1,5 @@
 {
-  "query": "mutation UpdateCardField($card_id: ID!, $field_id: ID!, $new_value: UndefinedInput!) { updateCardField(input: { card_id: $card_id field_id: $field_id new_value: $new_value }) { card { id current_phase { name } } } }",
+  "query": "mutation UpdateCardField($card_id: ID!, $field_id: ID!, $new_value: String!) { updateCardField(input: { card_id: $card_id field_id: $field_id new_value: $new_value }) { card { id current_phase { name } } } }",
   "variables": {
     "card_id": "card_456",
     "field_id": "status",
