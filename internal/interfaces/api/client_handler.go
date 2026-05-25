@@ -46,3 +46,19 @@ func (h *ClientHandler) Create(c *gin.Context) {
 		Status:        string(client.Status),
 	})
 }
+
+func (h *ClientHandler) GetByEmail(c *gin.Context) {
+	email := c.Param("email")
+	if email == "" {
+		c.JSON(http.StatusBadRequest, gin.H{"error": "email é obrigatório"})
+		return
+	}
+
+	client, err := h.service.GetByEmail(c.Request.Context(), email)
+	if err != nil {
+		c.JSON(http.StatusUnprocessableEntity, gin.H{"error": err.Error()})
+		return
+	}
+
+	c.JSON(http.StatusOK, client)
+}
