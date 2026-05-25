@@ -1,4 +1,4 @@
-# EWZ — Client Management & Pipefy Integration
+# Mundo Invest — Client Management & Pipefy Integration
 
 API em Go para gerenciamento de clientes e integração com o Pipefy via GraphQL.
 
