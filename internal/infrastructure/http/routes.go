@@ -12,7 +12,8 @@ func SetupRoutes(
 ) {
 	v1 := router.Group("/api/v1")
 	{
-		v1.POST("/clientes", clientHandler.Create)
+		v1.POST("/clients", clientHandler.Create)
+		v1.GET("/clients/:email", clientHandler.GetByEmail)
 		v1.POST("/webhooks/pipefy/card-updated", webhookHandler.Process)
 	}
 }
